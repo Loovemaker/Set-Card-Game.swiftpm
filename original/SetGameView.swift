@@ -7,13 +7,22 @@
 
 import SwiftUI
 
+/// 游戏场景的View
 struct SetGameView: View {
     
+    /// ViewModel，
+    /// 需要使用`.environmentObject(any SetGameVM)`进行依赖注入，否则会在运行时crash，
+    /// `EnvironmentObject`具有`ObservedObject`的已被观测的性质
     @EnvironmentObject var gameVM: SetGameVM
-    @State private var hintReady = false
+    /// ViewModel中`SimpleCDSystem`的提示是否可用功能
+    /// 淦！给这个bug逻辑擦屁股
+    /// 这个bug逻辑是因为View不支持`ObservedObject`在后台更新给View自己更新而导致的
+    @State private var hintReady = false    // FIXME: use pure functionality of `SimpleCDSystem`
     
     @Namespace private var cardGeometryNamespace
     
+    /// `View`协议要求，
+    /// SwiftUI View的内容
     var body: some View {
         VStack {
             fieldView
@@ -26,6 +35,7 @@ struct SetGameView: View {
         .padding()
     }
     
+    /// 提示的View，在正下方
     var hintView: some View {
         Button {
             withAnimation(.easeIn(duration: 1.0)) {
@@ -51,6 +61,7 @@ struct SetGameView: View {
         
     }
     
+    /// 场地的View，在上方
     var fieldView: some View {
         AspectVGrid(
             items: gameVM.field,
@@ -66,6 +77,8 @@ struct SetGameView: View {
                 }
         }
     }
+    
+    /// 卡片叠起来的View，适用于卡组和“墓地”
     func stackedCardsView(of cards: [SetGameVM.Card],
                           transition: AnyTransition) -> some View {
         ZStack {
@@ -82,6 +95,7 @@ struct SetGameView: View {
             }
         }
     }
+    /// 卡组的View，在左下方
     var deckView: some View {
         VStack {
             stackedCardsView(
@@ -90,13 +104,8 @@ struct SetGameView: View {
                                         removal: .identity.animation(.spring()))
             )
                 .onTapGesture {
-                    Task {
-                        for _ in 0 ..< 3 {
-                            withAnimation(.spring()) {
-                                gameVM.drawCard()
-                            }
-                            try? await Task.sleep(nanoseconds: UInt64(0.1 * Double(NSEC_PER_SEC)))
-                        }
+                    withAnimation(.spring()) {
+                        gameVM.drawCard()
                     }
                 }
             let count = gameVM.deck.count
@@ -105,6 +114,7 @@ struct SetGameView: View {
                 .opacity(count == 0 ? 0 : 1)
         }
     }
+    /// “墓地”的View，在右下方
     var graveView: some View {
         VStack {
             stackedCardsView(
@@ -124,14 +134,18 @@ struct SetGameView: View {
         }
     }
     
+    /// 单张卡片的View
     struct CardView: View, Identifiable {
-        
+        /// `Identifiable`协议要求
+        /// 卡片的View与卡片的ID
         var id: Int { card.id }
         
         typealias Card = SetGameVM.Card
         var card: Card
         
+        /// 用于判断卡片是否被选择
         @EnvironmentObject var gameVM: SetGameVM
+        /// 是否被选择
         var isSelected: Bool { gameVM.selectedCards.contains(card) }
         
         var body: some View {
@@ -175,6 +189,8 @@ struct SetGameView: View {
             }
         }
         
+        // 以下代码将卡片的特征值（Feature）转换成可被SwiftUI使用的值
+        
         var number: Int {
             card.number.rawValue
         }
@@ -198,15 +214,18 @@ struct SetGameView: View {
     }
 }
 
+/// 视图预览功能（就在你右手边）：游戏场景的View
 struct SetGameView_Previews: PreviewProvider {
-    static var gameVM = SetGameVM()  // FIXME: I can't use `@StateObject`!
+    static var gameVM = SetGameVM()  // FIXME: Not allowed to use `@StateObject` or the preview will IMMEDIATELY CRASH!
     
     static var initialized = false
     
+    /// Swift Playground会多次获取`previews`值（我看见的是两个视图预览用个4次），
+    /// 因此我不得不这么写。
     static func `init`() -> Bool {
         guard !initialized else { return false }
         defer { initialized = true }
-        gameVM.drawCard(count: 12)
+        gameVM.drawCard()
         gameVM.select(card: gameVM.field.first!)
         return true
     }

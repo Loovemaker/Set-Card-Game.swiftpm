@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+
+/// Smartly arrange the view of items at a designated aspect ratio
 struct AspectVGrid<Item, ItemView>: View where ItemView: View, Item: Identifiable {
     var items: [Item]
     var aspectRatio: CGFloat
