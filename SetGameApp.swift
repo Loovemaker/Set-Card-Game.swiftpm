@@ -39,13 +39,10 @@ import SwiftUI
 @main
 struct SetGameApp: App {
     
-    /// 使用`@StateObject`表示游戏场景的数据源，方便⌘F搜索
-    private var gameVM = SetGameVM()    // FIXME: Not allowed to use `@StateObject` or the preview will IMMEDIATELY CRASH!
-
     var body: some Scene {
         WindowGroup {
             SetGameView()
-                .environmentObject(gameVM)
+                .environmentObject(SetGameVM())
         }
     }
 }

@@ -93,7 +93,7 @@ struct CardView: View, Identifiable {
 
 
 struct CardView_Previews: PreviewProvider {
-    static let gameVM = SetGameVM() // FIXME: Not allowed to use `@StateObject` or the preview will IMMEDIATELY CRASH!
+    static let gameVM = SetGameVM()
     
     /// Swift Playground会多次获取`previews`值（我看见的是两个视图预览用个4次），
     /// 因此我不得不这么写。

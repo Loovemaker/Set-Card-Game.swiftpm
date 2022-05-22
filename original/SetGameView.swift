@@ -155,7 +155,7 @@ struct SetGameView: View, Identifiable {
 
 /// 视图预览功能（就在你右手边）：游戏场景的View
 struct SetGameView_Previews: PreviewProvider {
-    static var gameVM = SetGameVM()  // FIXME: Not allowed to use `@StateObject` or the preview will IMMEDIATELY CRASH!
+    static var gameVM = SetGameVM()
     
     /// Swift Playground会多次获取`previews`值（我看见的是两个视图预览用个4次），
     /// 因此我不得不这么写。
