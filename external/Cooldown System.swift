@@ -77,12 +77,14 @@ class SimpleCDSystem: CDSystemProtocol, ObservableObject {
         self.refreshRate = refreshRate
         
         self.clock.schedule(deadline: .now(), repeating: 1.0 / refreshRate)
-        self.clock.setEventHandler { [unowned self] in
-            for eventHandler in eventHandlers {
+        self.clock.setEventHandler { [weak self] in
+            guard let self = self else { return }
+            for eventHandler in self.eventHandlers {
                 eventHandler()
             }
         }
-        self.eventHandlers.append { [unowned self] in
+        self.eventHandlers.append { [weak self] in
+            guard let self = self else { return }
             DispatchQueue.main.async {
                 self.ready = (self.timeLeft <= 0)
             }
