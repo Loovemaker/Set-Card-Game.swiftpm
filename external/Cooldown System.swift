@@ -50,8 +50,8 @@ class SimpleCDSystem: CDSystemProtocol, ObservableObject {
     /// A List of **customizable** closures to handle the clock event
     var eventHandlers: [DispatchSourceTimer.DispatchSourceHandler] = []
     
-    @AutoLimit(to: 0 ... .infinity, isConstant: true) var interval: Double!
-    @AutoLimit(to: 0 ... MAX_REFRESH_RATE, isConstant: true) var refreshRate: Double!
+    @Clamped(to: 0 ... .infinity, isConstant: true) var interval: Double!
+    @Clamped(to: 0 ... MAX_REFRESH_RATE, isConstant: true) var refreshRate: Double!
     
     @discardableResult
     func activate() -> Bool {
@@ -97,7 +97,7 @@ class SimpleCDSystem: CDSystemProtocol, ObservableObject {
 extension CDSystemProtocol {
     
     func waitUntilReady(refreshRate: Double) async {
-        let refreshRate_ = AutoLimit.to(value: refreshRate, range: 0 ... MAX_REFRESH_RATE)
+        let refreshRate_ = Clamped.to(value: refreshRate, range: 0 ... MAX_REFRESH_RATE)
         await wait(pollInterval: 1.0/refreshRate_, until: { ready })
     }
 }
