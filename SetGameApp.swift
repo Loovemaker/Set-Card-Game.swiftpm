@@ -39,6 +39,7 @@ import SwiftUI
 @main
 struct SetGameApp: App {
     
+    /// 使用`@StateObject`表示游戏场景的数据源，方便⌘F搜索
     @StateObject private var gameVM = SetGameVM()
 
     var body: some Scene {

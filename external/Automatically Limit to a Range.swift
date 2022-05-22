@@ -27,7 +27,7 @@
 /// -   You **won't get warned** when a constant here is assigned 0 or more than 1 times, since its functionality
 ///     is fully implemented in normal code to be executed in **runtime**, and it's none o' f_king business of complier.
 ///     Thanks to God, by using `precondition`, Swift runtime will ensure the process get crashed
-///     when there is something wrong with constant instead of keeping security issues growing.
+///     when there is something wrong with constants instead of keeping security issues growing.
 /// -   Wrapped value must be of an optional type to express the state of unassigned, so you may want to
 ///     use `!` to force unwrapping the optional type when you define an `@AutoLimit` value, as seen in the examples.
 @propertyWrapper
@@ -42,7 +42,7 @@ struct AutoLimit<Value> where Value: Comparable {
             precondition(!isConstant || !isAssigned,
                          "Constant must be assigned only once!")
             if let value = newValue {
-                self.value = Self.limitValue(value: value, range: range)
+                self.value = Self.to(value: value, range: range)
                 self.isAssigned = true
             }
         }
@@ -53,15 +53,15 @@ struct AutoLimit<Value> where Value: Comparable {
     
     init(wrappedValue: Value? = nil, to range: ClosedRange<Value>, isConstant: Bool = false) {
         if let value = wrappedValue {
-            self.value = Self.limitValue(value: value, range: range)
+            self.value = Self.to(value: value, range: range)
             self.isAssigned = true
         }
         self.range = range
         self.isConstant = isConstant
     }
     
-    private static func limitValue(value: Value,
-                                   range: ClosedRange<Value>) -> Value {
+    static func to(value: Value,
+                   range: ClosedRange<Value>) -> Value {
         var result = value
         let lower = range.lowerBound, upper = range.upperBound
         if result < lower { result = lower }
@@ -72,4 +72,3 @@ struct AutoLimit<Value> where Value: Comparable {
     var projectedValue: Self { self }
     let range: ClosedRange<Value>
 }
-

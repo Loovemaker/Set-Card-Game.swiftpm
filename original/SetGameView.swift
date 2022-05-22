@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-/// 游戏场景的View
+/// 游戏场景的View，
+/// 需要使用`.environmentObject(_)`进行依赖注入`SetGameVM`类型对象，否则会在运行时crash
 struct SetGameView: View {
     
     /// ViewModel，
-    /// 需要使用`.environmentObject(any SetGameVM)`进行依赖注入，否则会在运行时crash，
     /// `EnvironmentObject`具有`ObservedObject`的已被观测的性质
     @EnvironmentObject var gameVM: SetGameVM
     /// ViewModel中`SimpleCDSystem`的提示是否可用功能

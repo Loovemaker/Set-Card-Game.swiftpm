@@ -7,6 +7,8 @@
 
 import Foundation
 
+fileprivate let MAX_REFRESH_RATE: Double = 100
+
 /// How a cooldown system should behave
 protocol CDSystemProtocol {
     /// readiness to activate
@@ -49,13 +51,17 @@ class SimpleCDSystem: CDSystemProtocol, ObservableObject {
     var eventHandlers: [DispatchSourceTimer.DispatchSourceHandler] = []
     
     @AutoLimit(to: 0 ... .infinity, isConstant: true) var interval: Double!
-    @AutoLimit(to: 0 ... 100, isConstant: true) var refreshRate: Double!
+    @AutoLimit(to: 0 ... MAX_REFRESH_RATE, isConstant: true) var refreshRate: Double!
     
+    @discardableResult
     func activate() -> Bool {
         guard ready else { return false }
         nextReadyDate = .now.addingTimeInterval(interval)
         refresh()
         return true
+    }
+    func waitUntilReady() async {
+        await waitUntilReady(refreshRate: self.refreshRate)
     }
     
     /// - Parameters:
@@ -85,5 +91,13 @@ class SimpleCDSystem: CDSystemProtocol, ObservableObject {
     }
     deinit {
         self.clock.cancel() // finalize the clock object safely
+    }
+}
+
+extension CDSystemProtocol {
+    
+    func waitUntilReady(refreshRate: Double) async {
+        let refreshRate_ = AutoLimit.to(value: refreshRate, range: 0 ... MAX_REFRESH_RATE)
+        await wait(pollInterval: 1.0/refreshRate_, until: { ready })
     }
 }

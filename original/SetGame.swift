@@ -19,7 +19,7 @@ struct SetGame: Identifiable {
     var grave: [SetGame.Set] = []
     
     /// 游戏场景的ID
-    let id: UUID?
+    private(set) var id: UUID? = nil
     
     /// 卡片的Model
     struct Card: Identifiable, Hashable, Equatable, CaseIterable {
