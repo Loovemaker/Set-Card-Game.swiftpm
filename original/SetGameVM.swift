@@ -17,9 +17,11 @@ let interval = 90
 /// 游戏场景的ViewModel。（本App采用SwiftUI采用的 [MVVM](https://zhuanlan.zhihu.com/p/59467370) 架构）
 /// 
 /// 由于需要使用观察者模式（符合`ObservableObject`协议），成为引用类型（`class`）而不是值类型（`struct`）。
-class SetGameVM: ObservableObject {
+class SetGameVM: ObservableObject, Identifiable {
     /// 游戏场景的Model
     @Published private var game: SetGame
+    
+    var id: UUID? { game.id }
     
     typealias Card = SetGame.Card
     #if DEBUG

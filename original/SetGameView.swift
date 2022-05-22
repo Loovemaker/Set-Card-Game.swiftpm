@@ -9,7 +9,7 @@ import SwiftUI
 
 /// 游戏场景的View，
 /// 需要使用`.environmentObject(_)`从自己或父视图进行依赖注入`SetGameVM`类型对象，否则会在运行时crash
-struct SetGameView: View {
+struct SetGameView: View, Identifiable {
     
     /// ViewModel，
     /// `EnvironmentObject`具有`ObservedObject`的已被观测的性质
@@ -22,6 +22,8 @@ struct SetGameView: View {
     @State private var isGravePresented = false
     
     @Namespace private var cardGeometryNamespace
+    
+    var id: UUID? { gameVM.id }
     
     /// `View`协议要求，
     /// SwiftUI View的内容
@@ -140,7 +142,6 @@ struct SetGameView: View {
             .onTapGesture { isGravePresented.toggle() }
             .popover(isPresented: $isGravePresented) {
                 GravePopoverView()
-                    .navigationTitle("Cards that Already Set")
             }
             
             let count = gameVM.grave.count * SetGame.Set.CARDS_COUNT
@@ -158,6 +159,8 @@ struct SetGameView_Previews: PreviewProvider {
     
     /// Swift Playground会多次获取`previews`值（我看见的是两个视图预览用个4次），
     /// 因此我不得不这么写。
+    /// - Parameter closure: 要执行的内容
+    /// - Returns: 此次是否执行成功（是否为唯一一次执行）
     @discardableResult
     static func `init`(_ closure: () throws -> Void) rethrows -> Bool {
         guard !initialized else { return false }
