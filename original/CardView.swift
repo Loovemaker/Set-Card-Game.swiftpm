@@ -93,16 +93,32 @@ struct CardView: View, Identifiable {
 
 
 struct CardView_Previews: PreviewProvider {
-    static let gameVM = SetGameVM()
-    static let card = SetGameVM.Card(number: .one,
-                                     content: .b,
-                                     shading: .gray,
-                                     color: .blue)
+    static let gameVM = SetGameVM() // FIXME: Not allowed to use `@StateObject` or the preview will IMMEDIATELY CRASH!
+    
+    /// Swift Playground会多次获取`previews`值（我看见的是两个视图预览用个4次），
+    /// 因此我不得不这么写。
+    /// - Parameter closure: 要执行的内容
+    /// - Returns: 此次是否执行成功（是否为唯一一次执行）
+    @discardableResult
+    static func `init`(_ closure: () throws -> Void) rethrows -> Bool {
+        guard !initialized else { return false }
+        defer { initialized = true }
+        try closure()
+        return true
+    }
+    static var initialized = false
+    
+    static var cards = SetGame.Set.random!.cards
     
     static var previews: some View {
-        CardView(card: card)
-            .environmentObject(gameVM)
-            .frame(width: 150, height: 200, alignment: .center)
-            .previewLayout(.sizeThatFits)
+        let _ = `init` {
+            cards = SetGame.Set.random(deckID: gameVM.id).cards
+        }
+        return ForEach(cards) { card in
+            CardView(card: card)
+                .environmentObject(gameVM)
+                .frame(width: 150, height: 200, alignment: .center)
+                .previewLayout(.sizeThatFits)
+        }
     }
 }

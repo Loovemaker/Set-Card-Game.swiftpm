@@ -22,7 +22,7 @@ struct SetGame: Identifiable {
     private(set) var id: UUID? = nil
     
     /// 卡片的Model
-    struct Card: Identifiable, Hashable, Equatable, CaseIterable {
+    struct Card: Identifiable, Hashable, Equatable, CaseIterable, Randomizable {
         
         let number: Number
         let content: Content
@@ -36,8 +36,8 @@ struct SetGame: Identifiable {
         /// 为4个特征值与所在卡组的ID组合而成的hash值（可惜了只有64位）
         var id: Int { hashValue }
         
-        /// 所有特征的共同功能，即可枚举与可判断是否相等
-        typealias Feature = CaseIterable & Equatable
+        /// 所有特征的共同功能，即可枚举与可判断是否相等，并且可以随机抽取
+        typealias Feature = CaseIterable & Equatable & Randomizable
         /// 特征：字符数量
         enum Number: Int, Feature {
             case one = 1
@@ -99,6 +99,14 @@ struct SetGame: Identifiable {
             lhs.content == rhs.content &&
             lhs.shading == rhs.shading &&
             lhs.color == rhs.color
+        }
+        
+        static var random: Card {
+            random(deckID: nil)
+        }
+        static func random(deckID: UUID?) -> Card {
+            .init(number: .random!, content: .random!, shading: .random!, color: .random!,
+                  deckID: deckID)
         }
     }
     
@@ -242,7 +250,7 @@ extension SetGame.Set {
     
     typealias Card = SetGame.Card
     
-    /// 同一个游戏场景中，给予任意两张卡片，在该游戏场景的81张卡片中有且仅有一张卡片组成Set。
+    /// 同一个游戏场景中，给予任意两张**不同的**卡片，在该游戏场景的81张卡片中有且仅有一张卡片组成Set。
     init?(_ card1: Card, _ card2: Card) {
         guard let card0 = Card.fromOtherOf(card1, card2) else { return nil }
         self.cards = [card0, card1, card2]
@@ -292,5 +300,19 @@ extension Array where Element == SetGame.Set {
 
     var flattened: [SetGame.Card] {
         self.map { $0.cards }.joined().map { $0 }
+    }
+}
+
+extension SetGame.Set: Randomizable {
+    static var random: SetGame.Set? {
+        random(deckID: nil)
+    }
+    static func random(deckID: UUID?) -> SetGame.Set {
+        var card1: Card, card2: Card
+        repeat {
+            card1 = Card.random(deckID: deckID)
+            card2 = Card.random(deckID: deckID)
+        } while card1 == card2 && deckID != nil
+        return .init(card1, card2)!
     }
 }
