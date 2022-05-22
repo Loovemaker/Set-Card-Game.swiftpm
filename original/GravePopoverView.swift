@@ -28,7 +28,7 @@ struct GravePopoverView: View {
             }
         }
         .frame(minWidth: 375, idealWidth: 414, maxWidth: 428,
-               minHeight: 667, idealHeight: 896, maxHeight: 926,
+               minHeight: 667, idealHeight: 736, maxHeight: 926,
                alignment: .center)
         .padding()
     }
@@ -50,7 +50,7 @@ struct GravePopoverView_Previews: PreviewProvider {
     
     static var previews: some View {
         let _ = `init` {
-            for _ in 0 ..< 3 {
+            for _ in 0 ..< 6 {
                 gameVM.drawCard()
                 for index in gameVM.firstPossibleIndices! {
                     gameVM.select(card: gameVM.field[index])
