@@ -82,8 +82,8 @@ extension SetGameVM {
     /// 在场上卡片中找到一个Set，返回在场上对应的索引值
     ///
     /// Note: 仅Debug模式可用
-    var firstPossibleIndices: Set<Int> {
-        guard let move = game.firstPossibleMove else { return [] }
+    var firstPossibleIndices: Set<Int>? {
+        guard let move = game.firstPossibleMove else { return nil }
         
         return Set(move.cards.map { card in
             game.field.firstIndex { $0 == card }!
