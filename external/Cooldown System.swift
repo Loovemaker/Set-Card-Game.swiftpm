@@ -21,7 +21,7 @@ protocol CDSystemProtocol {
 
 /// A really really simple cooldown system
 ///
-/// use `Foundation.DispatchSourceTimer` to poll and update the state of readiness
+/// use ``Foundation.DispatchSourceTimer`` to poll and update the state of readiness
 ///
 /// No functionality of pausing, meaning that the only clock is the clock in the real world.
 class SimpleCDSystem: CDSystemProtocol, ObservableObject {

@@ -16,6 +16,11 @@ struct AspectVGrid<Item, ItemView>: View where ItemView: View, Item: Identifiabl
     var content: (Item) -> ItemView
     var spacing: CGFloat
     
+    /// - Parameters:
+    ///   - items: An array of grid items to size and position each row of the grid.
+    ///   - aspectRatio: using the given aspect ratio.
+    ///   - spacing: The spacing between the grid and the next item in its parent view.
+    ///   - content: The content of the grid.
     init(items: [Item], aspectRatio: CGFloat, spacing: CGFloat = 0, @ViewBuilder content: @escaping (Item) -> ItemView) {
         self.items = items
         self.aspectRatio = aspectRatio
