@@ -8,15 +8,15 @@ import PackageDescription
 import AppleProductTypes
 
 let package = Package(
-    name: "Set",
+    name: "Set纸牌游戏",
     platforms: [
         .iOS("15.2")
     ],
     products: [
         .iOSApplication(
-            name: "Set",
+            name: "Set纸牌游戏",
             targets: ["AppModule"],
-            displayVersion: "0.0.2",
+            displayVersion: "0.2.0",
             bundleVersion: "1",
             appIcon: .asset("AppIcon"),
             accentColor: .asset("AccentColor"),
