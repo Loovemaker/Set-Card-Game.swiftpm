@@ -16,14 +16,19 @@ let interval = 90
 
 /// 游戏场景的ViewModel。（本App采用SwiftUI采用的 [MVVM](https://zhuanlan.zhihu.com/p/59467370) 架构）
 /// 
-/// 由于需要使用观察者模式（符合`ObservableObject`协议），成为引用类型（`class`）而不是值类型（`struct`）。
+/// 由于需要使用观察者模式（符合``ObservableObject``协议），成为引用类型（`class`）而不是值类型（`struct`）。
 class SetGameVM: ObservableObject, Identifiable {
     /// 游戏场景的Model
     @Published private var game: SetGame
     
+    /// View的ID值
+    ///
+    /// Identifiable协议要求，
+    /// 为Model的ID值
     var id: UUID? { game.id }
     
     typealias Card = SetGame.Card
+    
     #if DEBUG
     static let interval = 1.0
     #else
@@ -43,6 +48,8 @@ class SetGameVM: ObservableObject, Identifiable {
     }
     
     /// 使用了多少次提示
+    ///
+    /// _其实现在并没有实装这个功能_
     @Published private(set) var hintsUsed = 0
 
     /// 选中的卡片
@@ -62,28 +69,43 @@ class SetGameVM: ObservableObject, Identifiable {
 
 // MARK: 以下是功能扩展
 
+/// 游戏是否已完成
+extension SetGameVM {
+    /// 游戏是否已完成
+    ///
+    /// 当卡组的卡片全部抽完且场上的卡片无法组成Set，游戏完成。
+    var isFinished: Bool { game.isFinished }
+}
+
 /// 抽卡功能
 extension SetGameVM {
-    /// 满足以下条件地抽卡
-    /// -   在卡组正常的情况下，至少抽3张
-    /// -   在卡组正常的情况下，场上至少12张
-    /// -   除非游戏完成，场上有至少一组Set
-    func drawCard() {
+    /// 根据游戏规则抽卡
+    ///
+    /// 首先需要满足条件（此条件可以强制关闭）：
+    /// -   场上卡片不满15张
+    ///
+    /// 然后满足以下条件地抽卡
+    /// 1.  在卡组正常的情况下，至少抽3张
+    /// 2.  在卡组正常的情况下，场上至少有12张
+    /// 3.  除非游戏完成，场上有至少一组Set
+    /// - Parameter force: 强制抽卡，无视场上卡片不得超过15张的限制
+    /// - Returns: 是否顺利抽卡，**没有**被场上卡片不得超过15张的条件限制
+    @discardableResult
+    func drawCard(force: Bool = false) -> Bool {
+        guard force || field.count < 15 else { return false }
         game.drawCard(count: 3)
         game.drawUntilThereIsEnoughCards(noLessThan: 12)
         game.drawUntilPossibleMoveExists()
         #if DEBUG
         print("A possible move is these indices: \(firstPossibleIndices.debugDescription)")
         #endif
+        return true
     }
 }
 
 /// 提示功能
 extension SetGameVM {
-    #if DEBUG
     /// 在场上卡片中找到一个Set，返回在场上对应的索引值
-    ///
-    /// Note: 仅Debug模式可用
     var firstPossibleIndices: Set<Int>? {
         guard let move = game.firstPossibleMove else { return nil }
         
@@ -91,7 +113,6 @@ extension SetGameVM {
             game.field.firstIndex { $0 == card }!
         })
     }
-    #endif
 
     /// 尝试得到提示
     /// - Returns: 是否成功得到提示
@@ -145,7 +166,11 @@ extension SetGameVM {
         
         if result {
             #if DEBUG
-            print("A possible move is these indices: \(firstPossibleIndices.debugDescription)")
+            if let firstPossibleIndices = firstPossibleIndices {
+                print("A possible move is these indices: \(firstPossibleIndices.debugDescription)")
+            } else {
+                print("There is no possible moves, please draw cards.")
+            }
             #endif
         }
         
