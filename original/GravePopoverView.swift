@@ -7,25 +7,42 @@
 
 import SwiftUI
 
+/// 轻点“墓地”后的弹出的View
+///
 /// 需要使用`.environmentObject(_)`从自己或父视图依赖注入`SetGameVM`类型对象，否则会在运行时crash
 struct GravePopoverView: View {
     /// ViewModel，
     /// `EnvironmentObject`具有`ObservedObject`的已被观测的性质
     @EnvironmentObject var gameVM: SetGameVM
     
-//    @Environment(\.presentationMode) var presentationMode
+    /// 用于返回功能
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        ScrollView {
-            ForEach(gameVM.grave, id: \.hashValue) { `set` in
-                HStack {
-                    ForEach(`set`.cards) { card in
-                        CardView(card: card)
-                            .environmentObject(gameVM)
+        NavigationView {
+            ScrollView {
+                ForEach(gameVM.grave, id: \.hashValue) { `set` in
+                    HStack {
+                        ForEach(`set`.cards) { card in  // 每一行展现一组Set的3张卡片
+                            CardView(card: card)
+                                .environmentObject(gameVM)
+                        }
+                        .aspectRatio(CardView.DEFAULT_ASPECT_RATIO, contentMode: .fit)
                     }
-                    .aspectRatio(CardView.DEFAULT_ASPECT_RATIO, contentMode: .fit)
                 }
             }
+            .padding()
+            .navigationTitle("已经Set的卡片（\(gameVM.grave.flattened.count) 张）")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(content: {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(role: .cancel) {
+                        dismiss()
+                    } label: {
+                        Label("返回", systemImage: "chevron.left")
+                    }
+                }
+            })
         }
         .frame(minWidth: 375, idealWidth: 414, maxWidth: 428,
                minHeight: 667, idealHeight: 736, maxHeight: 926,
